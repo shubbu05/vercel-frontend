@@ -65,28 +65,22 @@ const CRView = () => {
         let nextStatus = cr.status;
 
         if (action === 'Approve') {
-
             if (cr.status === 'Submitted' && user.role === 'Change Reviewer')
                 nextStatus = 'Under Review';
-
             else if (cr.status === 'Under Review' && user.role === 'InfoSec')
                 nextStatus = 'Security Review';
-
             else if (cr.status === 'Security Review' && user.role === 'Change Approver')
                 nextStatus = 'Approved';
-
+            else if (user.role === 'Admin')
+                nextStatus = 'Approved';
         }
 
         else if (action === 'Reject') {
-
             nextStatus = 'Closed';
-
         }
 
         else if (action === 'Send Back') {
-
             nextStatus = 'Submitted';
-
         }
 
         try {
@@ -147,28 +141,25 @@ const CRView = () => {
         return <div className="p-8 text-red-500 font-bold">CR Not Found</div>;
 
 
-    // STRICT ROLE + STATUS CONTROL
     const canReview =
         (cr.status === 'Submitted' && user?.role === 'Change Reviewer') ||
         (cr.status === 'Under Review' && user?.role === 'InfoSec') ||
-        (cr.status === 'Security Review' && user?.role === 'Change Approver');
+        (cr.status === 'Security Review' && user?.role === 'Change Approver') ||
+        user?.role === 'Admin';
 
-
-    // Implementation allowed only after approval
     const canImplement =
         cr.status === 'Approved' &&
         (user?.role === 'Implementation Team' || user?.role === 'Admin');
 
-
     return (
 
-        <div className="space-y-6 max-w-6xl mx-auto">
+        <div className="space-y-6">
 
             <div className="flex items-center gap-4">
 
                 <button
                     onClick={() => navigate('/crs')}
-                    className="text-gray-500 hover:text-aai-blue"
+                    className="text-gray-500 hover:text-blue-600"
                 >
                     <ArrowLeft size={24} />
                 </button>
@@ -182,16 +173,14 @@ const CRView = () => {
             </div>
 
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
 
                 {/* LEFT SIDE */}
-
                 <div className="md:col-span-2 space-y-6">
 
                     <div className="bg-white p-6 rounded-xl shadow-sm border">
 
-                        <h3 className="text-lg font-semibold border-b pb-3 mb-4 text-aai-blue">
+                        <h3 className="text-lg font-semibold border-b pb-3 mb-4 text-blue-600">
                             Core Information
                         </h3>
 
@@ -221,28 +210,21 @@ const CRView = () => {
 
                         </div>
 
-
                         <div className="space-y-4">
 
                             <div>
                                 <p className="text-xs text-gray-500 mb-1">Description</p>
-                                <p className="text-sm bg-gray-50 p-3 rounded">
-                                    {cr.description}
-                                </p>
+                                <p className="text-sm bg-gray-50 p-3 rounded">{cr.description}</p>
                             </div>
 
                             <div>
                                 <p className="text-xs text-gray-500 mb-1">Reason for Change</p>
-                                <p className="text-sm bg-gray-50 p-3 rounded">
-                                    {cr.reason}
-                                </p>
+                                <p className="text-sm bg-gray-50 p-3 rounded">{cr.reason}</p>
                             </div>
 
                             <div>
                                 <p className="text-xs text-gray-500 mb-1">Impacted Systems</p>
-                                <p className="text-sm font-medium">
-                                    {cr.impacted_users_apps}
-                                </p>
+                                <p className="text-sm font-medium">{cr.impacted_users_apps}</p>
                             </div>
 
                         </div>
@@ -251,12 +233,11 @@ const CRView = () => {
 
 
                     {/* IMPLEMENTATION PANEL */}
-
                     {canImplement && (
 
                         <div className="bg-white p-6 rounded-xl border border-blue-200 shadow-md">
 
-                            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-aai-blue">
+                            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-600">
                                 <CheckCircle size={20} />
                                 Record Implementation Details
                             </h3>
@@ -270,12 +251,7 @@ const CRView = () => {
                                         required
                                         className="border p-2 rounded"
                                         value={implData.actual_start}
-                                        onChange={e =>
-                                            setImplData({
-                                                ...implData,
-                                                actual_start: e.target.value
-                                            })
-                                        }
+                                        onChange={e => setImplData({ ...implData, actual_start: e.target.value })}
                                     />
 
                                     <input
@@ -283,12 +259,7 @@ const CRView = () => {
                                         required
                                         className="border p-2 rounded"
                                         value={implData.actual_end}
-                                        onChange={e =>
-                                            setImplData({
-                                                ...implData,
-                                                actual_end: e.target.value
-                                            })
-                                        }
+                                        onChange={e => setImplData({ ...implData, actual_end: e.target.value })}
                                     />
 
                                 </div>
@@ -298,15 +269,13 @@ const CRView = () => {
                                     className="w-full border p-2 rounded"
                                     rows="2"
                                     value={implData.remarks}
-                                    onChange={e =>
-                                        setImplData({
-                                            ...implData,
-                                            remarks: e.target.value
-                                        })
-                                    }
+                                    onChange={e => setImplData({ ...implData, remarks: e.target.value })}
                                 />
 
-                                <button className="bg-blue-600 text-white px-4 py-2 rounded">
+                                <button
+                                    type="submit"
+                                    style={{ backgroundColor: '#1a56db', color: 'white', width: '100%', padding: '12px', borderRadius: '8px', fontWeight: '600', fontSize: '14px', border: 'none', cursor: 'pointer' }}
+                                >
                                     Submit Implementation
                                 </button>
 
@@ -320,12 +289,11 @@ const CRView = () => {
 
 
                 {/* RIGHT PANEL */}
-
                 <div className="space-y-6">
 
                     {canReview && (
 
-                        <div className="bg-white p-6 rounded-xl border-2 border-aai-light shadow-md">
+                        <div className="bg-white p-6 rounded-xl border-2 border-blue-100 shadow-md">
 
                             <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b">
                                 Your Review is Required
@@ -356,7 +324,7 @@ const CRView = () => {
 
                                 <button
                                     type="submit"
-                                    className="w-full flex items-center justify-center gap-2 bg-aai-blue text-white py-3 rounded-lg font-semibold hover:bg-aai-dark"
+                                    style={{ backgroundColor: '#1a56db', color: 'white', width: '100%', padding: '12px', borderRadius: '8px', fontWeight: '600', fontSize: '14px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                 >
                                     <Send size={16} />
                                     Submit Review
@@ -375,18 +343,14 @@ const CRView = () => {
                         </h3>
 
                         {history.length === 0 && (
-                            <p className="text-sm text-gray-500">
-                                No actions taken yet.
-                            </p>
+                            <p className="text-sm text-gray-500">No actions taken yet.</p>
                         )}
 
                         {history.map((h, i) => (
 
                             <div key={i} className="mb-4">
 
-                                <p className="text-sm font-semibold">
-                                    {h.action}
-                                </p>
+                                <p className="text-sm font-semibold">{h.action}</p>
 
                                 <p className="text-xs text-gray-500">
                                     {h.username} • {h.role_name}
